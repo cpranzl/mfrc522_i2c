@@ -61,7 +61,7 @@ class MRFC522:
     MIFARE_TRANSFER = [0xB0]
 
     MIFARE_KEY = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-    
+
     MIFARE_USERDATA = [ 1,  2,  4,  5,  6,  8,  9, 10, 12, 13, 14, 16, 17, 18,
                        20, 21, 22, 24, 25, 26, 28, 29, 30, 32, 33, 34, 36, 37,
                        38, 40, 41, 42, 44, 45, 46, 48, 49, 50, 52, 53, 54, 56,
@@ -176,7 +176,7 @@ class MRFC522:
             i = i + 1
 
         # Countinously repeat the transmission of data from the FIFO buffer and
-        # the reception of data from the RF field. 
+        # the reception of data from the RF field.
         self.MRFC522_write(self.COMMANDREG, self.MRFC522_TRANSCEIVE)
 
         # Starts the transmission of data, only valid in combination with the

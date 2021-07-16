@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-import MRFC522
+import mrfc522-i2c as MRFC522
 import signal
 
 continue_reading = True
@@ -62,7 +62,7 @@ while continue_reading:
                         continue_reading = False
                     else:
                         print('Error while reading')
-                    
+
                     # Deauthenticate
                     MRFC522Reader.deauthenticate()
                     print('Card deauthenticated')
