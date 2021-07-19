@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-import MRFC522
+import MFRC522
 import signal
 import random
 
@@ -24,43 +24,43 @@ def random_data(size=16):
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
 
-# Create an object of the class mrfc
-MRFC522Reader = MRFC522.MRFC522()
+# Create an object of the class MFRC
+MFRC522Reader = MFRC522.MFRC522()
 
-MRFC522Reader.showReaderDetails()
+MFRC522Reader.showReaderDetails()
 
 while continue_reading:
     # Scan for cards
-    (status, backData, tagType) = MRFC522Reader.scan()
-    if status == MRFC522Reader.MI_OK:
+    (status, backData, tagType) = MFRC522Reader.scan()
+    if status == MFRC522Reader.MI_OK:
         print(f'Card detected, Type: {tagType}')
 
         # Get UID of the card
-        (status, uid, backBits) = MRFC522Reader.transceive()
-        if status == MRFC522Reader.MI_OK:
+        (status, uid, backBits) = MFRC522Reader.transceive()
+        if status == MFRC522Reader.MI_OK:
             print(f'Card identified, '
                   f'UID: {uid[0]:02x}:{uid[1]:02x}:{uid[2]:02x}:{uid[3]:02x}')
 
             # Select the scanned card
-            (status, backData, backBits) = MRFC522Reader.select(uid)
-            if status == MRFC522Reader.MI_OK:
+            (status, backData, backBits) = MFRC522Reader.select(uid)
+            if status == MFRC522Reader.MI_OK:
                 print('Card selected')
 
                 # Authenticate
-                mode = MRFC522Reader.MIFARE_AUTHKEY1
+                mode = MFRC522Reader.MIFARE_AUTHKEY1
                 blockAddr = 8
-                (status, backData, backBits) = MRFC522Reader.authenticate(
+                (status, backData, backBits) = MFRC522Reader.authenticate(
                     mode,
                     blockAddr,
-                    MRFC522Reader.MIFARE_KEY,
+                    MFRC522Reader.MIFARE_KEY,
                     uid)
-                if (status == MRFC522Reader.MI_OK):
+                if (status == MFRC522Reader.MI_OK):
                     print('Card authenticated')
 
                     # Read old data from card
-                    (status, backData, backBits) = MRFC522Reader.read(
+                    (status, backData, backBits) = MFRC522Reader.read(
                         blockAddr)
-                    if (status == MRFC522Reader.MI_OK):
+                    if (status == MFRC522Reader.MI_OK):
                         print(f'Block {blockAddr:02} ', end = '')
                         for i in range(0,16):
                             print(f'{backData[i]:02x} ', end = '')
@@ -68,19 +68,19 @@ while continue_reading:
 
                         # Write new data to card
                         data = random_data()
-                        (status, backData, backBits) = MRFC522Reader.write(
+                        (status, backData, backBits) = MFRC522Reader.write(
                             blockAddr,
                             data)
-                        if (status == MRFC522Reader.MI_OK):
+                        if (status == MFRC522Reader.MI_OK):
                             print(f'Block {blockAddr:02} ', end = '')
                             for i in range(0,16):
                                 print(f'{data[i]:02x} ', end = '')
                             print('written')
 
                             # Read new data from card
-                            (status, backData, backBits) = MRFC522Reader.read(
+                            (status, backData, backBits) = MFRC522Reader.read(
                                 blockAddr)
-                            if (status == MRFC522Reader.MI_OK):
+                            if (status == MFRC522Reader.MI_OK):
                                 print(f'Block {blockAddr:02} ', end = '')
                                 for i in range(0,16):
                                     print(f'{backData[i]:02x} ', end = '')
@@ -95,7 +95,7 @@ while continue_reading:
                         print('Error while reading old data')
 
                     # Deauthenticate
-                    MRFC522Reader.deauthenticate()
+                    MFRC522Reader.deauthenticate()
                     print('Card deauthenticated')
                 else:
                     print('Authentication error')

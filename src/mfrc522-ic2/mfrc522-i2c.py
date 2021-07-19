@@ -4,7 +4,7 @@
 from smbus import SMBus
 
 
-class MRFC522:
+class MFRC522:
     # Define register values from datasheet
     # Page 0: Command & Status register
     COMMANDREG = 0x01  # Start and stops command execution
@@ -32,16 +32,16 @@ class MRFC522:
     # Page 3: Test register
     VERSIONREG = 0x37  # Shows the software version
 
-    # MRFC522 Commands
-    MRFC522_IDLE = 0x00  # No actions, cancels current command execution
-    MRFC522_CALCCRC = 0x03  # Activates the CRC coprocessor and performs
+    # MFRC522 Commands
+    MFRC522_IDLE = 0x00  # No actions, cancels current command execution
+    MFRC522_CALCCRC = 0x03  # Activates the CRC coprocessor and performs
     # a self test
-    MRFC522_TRANSCEIVE = 0x0C  # Transmits data from FIFO buffer to
+    MFRC522_TRANSCEIVE = 0x0C  # Transmits data from FIFO buffer to
     # anntenna and automatically activates the receiver after
     # transmission
-    MRFC522_MFAUTHENT = 0x0E  # Performs the MIFARE standard authentication
+    MFRC522_MFAUTHENT = 0x0E  # Performs the MIFARE standard authentication
     # as a reader
-    MRFC522_SOFTRESET = 0x0F  # Resets the MRFC522
+    MFRC522_SOFTRESET = 0x0F  # Resets the MFRC522
 
     # MIFARE Classic Commands
     MIFARE_REQUEST = [0x26]
@@ -77,14 +77,14 @@ class MRFC522:
     i2caddress = 0x28
 
     def __init__(self):
-        self.MRFC522_init()
+        self.MFRC522_init()
 
     def showReaderDetails(self):
-        version = self.MRFC522_read(self.VERSIONREG)
+        version = self.MFRC522_read(self.VERSIONREG)
         if (version == 0x91):
-            print(f'MRFC522 Software Version: 0x{version:02x} = v1.0')
+            print(f'MFRC522 Software Version: 0x{version:02x} = v1.0')
         if (version == 0x92):
-            print(f'MRFC522 Software Version: 0x{version:02x} = v2.0')
+            print(f'MFRC522 Software Version: 0x{version:02x} = v2.0')
 
     def scan(self):
         status = None
@@ -92,7 +92,7 @@ class MRFC522:
         backBits = None
 
         # None bits of the last byte
-        self.MRFC522_write(self.BITFRAMINGREG, 0x07)
+        self.MFRC522_write(self.BITFRAMINGREG, 0x07)
 
         buffer = []
         buffer.extend(self.MIFARE_REQUEST)
@@ -122,7 +122,7 @@ class MRFC522:
         backBits = None
 
         # All bits of the last byte
-        self.MRFC522_write(self.BITFRAMINGREG, 0x00)
+        self.MFRC522_write(self.BITFRAMINGREG, 0x00)
 
         buffer = []
         buffer.extend(self.MIFARE_ANTICOLCL1)
@@ -149,7 +149,7 @@ class MRFC522:
         LoAlertIEn = 0x04  # Allow the low Alert interrupt request
         ErrIEn = 0x02  # Allow the error interrupt request
         TimerIEn = 0x01  # Allow the timer interrupt request
-        self.MRFC522_write(self.COMIENREG, (IRqInv |
+        self.MFRC522_write(self.COMIENREG, (IRqInv |
                                             TxIEn |
                                             RxIEn |
                                             IdleIEn |
@@ -159,30 +159,30 @@ class MRFC522:
 
         # Indicates that the bits in the ComIrqReg register are set
         Set1 = 0x80
-        self.MRFC522_clearBitMask(self.COMIRQREG, Set1)
+        self.MFRC522_clearBitMask(self.COMIRQREG, Set1)
 
         # Immediatly clears the internal FIFO buffer's read and write pointer
         # and ErrorReg register's BufferOvfl bit
         FlushBuffer = 0x80
-        self.MRFC522_setBitMask(self.FIFOLEVELREG, FlushBuffer)
+        self.MFRC522_setBitMask(self.FIFOLEVELREG, FlushBuffer)
 
         # Cancel running commands
-        self.MRFC522_write(self.COMMANDREG, self.MRFC522_IDLE)
+        self.MFRC522_write(self.COMMANDREG, self.MFRC522_IDLE)
 
         # Write data in FIFO register
         i = 0
         while (i < len(data)):
-            self.MRFC522_write(self.FIFODATAREG, data[i])
+            self.MFRC522_write(self.FIFODATAREG, data[i])
             i = i + 1
 
         # Countinously repeat the transmission of data from the FIFO buffer and
         # the reception of data from the RF field.
-        self.MRFC522_write(self.COMMANDREG, self.MRFC522_TRANSCEIVE)
+        self.MFRC522_write(self.COMMANDREG, self.MFRC522_TRANSCEIVE)
 
         # Starts the transmission of data, only valid in combination with the
         # Transceive command
         StartSend = 0x80
-        self.MRFC522_setBitMask(self.BITFRAMINGREG, StartSend)
+        self.MFRC522_setBitMask(self.BITFRAMINGREG, StartSend)
 
         # The timer has decrement the value in TCounterValReg register to zero
         TimerIRq = 0x01
@@ -194,7 +194,7 @@ class MRFC522:
         # Wait for an interrupt
         i = 2000
         while True:
-            comIRqReg = self.MRFC522_read(self.COMIRQREG)
+            comIRqReg = self.MFRC522_read(self.COMIRQREG)
             if (comIRqReg & TimerIRq):
                 # Timeout
                 break
@@ -209,7 +209,7 @@ class MRFC522:
                 break
 
         # Clear the StartSend bit in BitFramingReg register
-        self.MRFC522_clearBitMask(self.BITFRAMINGREG, StartSend)
+        self.MFRC522_clearBitMask(self.BITFRAMINGREG, StartSend)
 
         # Retrieve data from FIFODATAREG
         if (i != 0):
@@ -224,7 +224,7 @@ class MRFC522:
             ProtocolErr = 0x01
 
             errorTest = (BufferOvfl | ColErr | ParityErr | ProtocolErr)
-            errorReg = self.MRFC522_read(self.ERRORREG)
+            errorReg = self.MFRC522_read(self.ERRORREG)
 
             # Test if any of the errors above happend
             if (~(errorReg & errorTest)):
@@ -237,7 +237,7 @@ class MRFC522:
                 if (comIRqReg & TimerIRq & ErrIRq):
                     status = self.MI_NOTAGERR
 
-                fifoLevelReg = self.MRFC522_read(self.FIFOLEVELREG)
+                fifoLevelReg = self.MFRC522_read(self.FIFOLEVELREG)
 
                 # Edge cases
                 if fifoLevelReg == 0:
@@ -248,7 +248,7 @@ class MRFC522:
                 # Indicates the number of valid bits in the last received byte
                 RxLastBits = 0x08
 
-                lastBits = self.MRFC522_read(self.CONTROLREG) & RxLastBits
+                lastBits = self.MFRC522_read(self.CONTROLREG) & RxLastBits
 
                 if (lastBits != 0):
                     backBits = (fifoLevelReg - 1) * 8 + lastBits
@@ -257,7 +257,7 @@ class MRFC522:
 
                 i = 0
                 while (i < fifoLevelReg):
-                    backData.append(self.MRFC522_read(self.FIFODATAREG))
+                    backData.append(self.MFRC522_read(self.FIFODATAREG))
                     i = i + 1
 
             else:
@@ -269,24 +269,24 @@ class MRFC522:
         # Clear the bit that indicates taht the CalcCRC command is active
         # and all data is processed
         CRCIRq = 0x04
-        self.MRFC522_clearBitMask(self.DIVIRQREG, CRCIRq)
+        self.MFRC522_clearBitMask(self.DIVIRQREG, CRCIRq)
 
         # Immedialty clears the internal FIFO buffer's read and write pointer
         # and ErrorReg register's BufferOvfl bit
         FlushBuffer = 0x80
-        self.MRFC522_setBitMask(self.FIFOLEVELREG, FlushBuffer)
+        self.MFRC522_setBitMask(self.FIFOLEVELREG, FlushBuffer)
 
         # Write data to FIFO
         i = 0
         while (i < len(data)):
-            self.MRFC522_write(self.FIFODATAREG, data[i])
+            self.MFRC522_write(self.FIFODATAREG, data[i])
             i = i + 1
 
         # Execute CRC calculation
-        self.MRFC522_write(self.COMMANDREG, self.MRFC522_CALCCRC)
+        self.MFRC522_write(self.COMMANDREG, self.MFRC522_CALCCRC)
         i = 255
         while True:
-            divirqreg = self.MRFC522_read(self.DIVIRQREG)
+            divirqreg = self.MFRC522_read(self.DIVIRQREG)
             i = i - 1
             if (i == 0):
                 # Watchdog expired
@@ -297,8 +297,8 @@ class MRFC522:
 
         # Retrieve CRC from CRCRESULTREG
         crc = []
-        crc.append(self.MRFC522_read(self.CRCRESULTREGLSB))
-        crc.append(self.MRFC522_read(self.CRCRESULTREGMSB))
+        crc.append(self.MFRC522_read(self.CRCRESULTREGLSB))
+        crc.append(self.MFRC522_read(self.CRCRESULTREGMSB))
 
         return (crc)
 
@@ -347,7 +347,7 @@ class MRFC522:
         # Can ONLY be set to logic 1 by a successfull execution of
         # the MFAuthent command
         MFCrypto1On = 0x08
-        self.MRFC522_clearBitMask(self.STATUS2REG, MFCrypto1On)
+        self.MFRC522_clearBitMask(self.STATUS2REG, MFCrypto1On)
 
     def authenticateCard(self, data):
         status = None
@@ -357,29 +357,29 @@ class MRFC522:
         IRqInv = 0x80  # Signal on pin IRQ is inverted
         IdleIEn = 0x10  # Allow the idle interrupt request
         ErrIEn = 0x02  # Allow the error interrupt request
-        self.MRFC522_write(self.COMIENREG, (IRqInv | IdleIEn | ErrIEn))
+        self.MFRC522_write(self.COMIENREG, (IRqInv | IdleIEn | ErrIEn))
 
         # Indicates that the bits in the ComIrqReg register are set
         Set1 = 0x80
-        self.MRFC522_clearBitMask(self.COMIRQREG, Set1)
+        self.MFRC522_clearBitMask(self.COMIRQREG, Set1)
 
         # Immedialty clears the interl FIFO buffer's read and write pointer
         # and ErrorReg register's BufferOvfl bit
         FlushBuffer = 0x80
-        self.MRFC522_setBitMask(self.FIFOLEVELREG, FlushBuffer)
+        self.MFRC522_setBitMask(self.FIFOLEVELREG, FlushBuffer)
 
         # Cancel running commands
-        self.MRFC522_write(self.COMMANDREG, self.MRFC522_IDLE)
+        self.MFRC522_write(self.COMMANDREG, self.MFRC522_IDLE)
 
         # Write data in FIFO register
         i = 0
         while (i < len(data)):
-            self.MRFC522_write(self.FIFODATAREG, data[i])
+            self.MFRC522_write(self.FIFODATAREG, data[i])
             i = i + 1
 
         # This command manages MIFARE authentication to anable a secure
         # communication to any MIFARE card
-        self.MRFC522_write(self.COMMANDREG, self.MRFC522_MFAUTHENT)
+        self.MFRC522_write(self.COMMANDREG, self.MFRC522_MFAUTHENT)
 
         # The timer has decrement the value in TCounterValReg register to zero
         TimerIRq = 0x01
@@ -391,7 +391,7 @@ class MRFC522:
         # Wait for an interrupt
         i = 2000
         while True:
-            comIRqReg = self.MRFC522_read(self.COMIRQREG)
+            comIRqReg = self.MFRC522_read(self.COMIRQREG)
             if (comIRqReg & TimerIRq):
                 # Timeout
                 break
@@ -407,7 +407,7 @@ class MRFC522:
 
         # Clear the StartSend bit in BitFramingReg register
         StartSend = 0x80
-        self.MRFC522_clearBitMask(self.BITFRAMINGREG, StartSend)
+        self.MFRC522_clearBitMask(self.BITFRAMINGREG, StartSend)
 
         # Retrieve data from FIFODATAREG
         if (i != 0):
@@ -422,7 +422,7 @@ class MRFC522:
             ProtocolErr = 0x01
 
             errorTest = (BufferOvfl | ColErr | ParityErr | ProtocolErr)
-            errorReg = self.MRFC522_read(self.ERRORREG)
+            errorReg = self.MFRC522_read(self.ERRORREG)
 
             # Test if any of the errors above happend
             if (~(errorReg & errorTest)):
@@ -482,41 +482,41 @@ class MRFC522:
 
         return (status, backData, backBits)
 
-    def MRFC522_antennaOn(self):
-        value = self.MRFC522_read(self.TXCONTROLREG)
+    def MFRC522_antennaOn(self):
+        value = self.MFRC522_read(self.TXCONTROLREG)
         if (~(value & 0x03)):
-            self.MRFC522_setBitMask(self.TXCONTROLREG, 0x03)
+            self.MFRC522_setBitMask(self.TXCONTROLREG, 0x03)
 
-    def MRFC522_antennaOff(self):
-        self.MRFC522_clearBitMask(self.TXCONTROLREG, 0x03)
+    def MFRC522_antennaOff(self):
+        self.MFRC522_clearBitMask(self.TXCONTROLREG, 0x03)
 
-    def MRFC522_reset(self):
-        self.MRFC522_write(self.COMMANDREG, self.MRFC522_SOFTRESET)
+    def MFRC522_reset(self):
+        self.MFRC522_write(self.COMMANDREG, self.MFRC522_SOFTRESET)
 
-    def MRFC522_init(self):
-        self.MRFC522_reset()
+    def MFRC522_init(self):
+        self.MFRC522_reset()
 
-        self.MRFC522_write(self.TMODEREG, 0x8D)
-        self.MRFC522_write(self.TPRESCALERREG, 0x3E)
-        self.MRFC522_write(self.TRELOADREGL, 30)
-        self.MRFC522_write(self.TRELOADREGH, 0)
+        self.MFRC522_write(self.TMODEREG, 0x8D)
+        self.MFRC522_write(self.TPRESCALERREG, 0x3E)
+        self.MFRC522_write(self.TRELOADREGL, 30)
+        self.MFRC522_write(self.TRELOADREGH, 0)
 
-        self.MRFC522_write(self.TXASKREG, 0x40)
-        self.MRFC522_write(self.MODEREG, 0x3D)
+        self.MFRC522_write(self.TXASKREG, 0x40)
+        self.MFRC522_write(self.MODEREG, 0x3D)
 
-        self.MRFC522_antennaOn()
+        self.MFRC522_antennaOn()
 
-    def MRFC522_read(self, address):
+    def MFRC522_read(self, address):
         value = self.i2cbus.read_byte_data(self.i2caddress, address)
         return value
 
-    def MRFC522_write(self, address, value):
+    def MFRC522_write(self, address, value):
         self.i2cbus.write_byte_data(self.i2caddress, address, value)
 
-    def MRFC522_setBitMask(self, address, mask):
-        value = self.MRFC522_read(address)
-        self.MRFC522_write(address, value | mask)
+    def MFRC522_setBitMask(self, address, mask):
+        value = self.MFRC522_read(address)
+        self.MFRC522_write(address, value | mask)
 
-    def MRFC522_clearBitMask(self, address, mask):
-        value = self.MRFC522_read(address)
-        self.MRFC522_write(address, value & (~mask))
+    def MFRC522_clearBitMask(self, address, mask):
+        value = self.MFRC522_read(address)
+        self.MFRC522_write(address, value & (~mask))
