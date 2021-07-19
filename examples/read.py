@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-import MFRC522-i2c as MFRC522
+import mfrc522_i2c
 import signal
 
 continue_reading = True

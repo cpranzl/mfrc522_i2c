@@ -9,5 +9,5 @@ This library provides a Python interface to the MFRC522.
 
 ## Installation
 ```bash
-python3 -m pip install mfrc522-i2c
+python3 -m pip install mfrc522_i2c
 ```
