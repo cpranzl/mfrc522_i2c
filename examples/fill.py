@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
+"""
+Fills datablocks with random values
+"""
 
-import MFRC522
+__author__ = "Christoph Pranzl"
+__version__ = "0.0.1"
+__license__ = "GPLv3"
+
+from mfrc522_i2c import MFRC522
 import random
 
 continue_reading = True
@@ -16,7 +23,8 @@ def random_data(size=16):
 # Create an object of the class MFRC
 MFRC522Reader = MFRC522.MFRC522()
 
-MFRC522Reader.showReaderDetails()
+version = MFRC522Reader.getReaderVersion()
+print(f'MFRC522 Software Version: {version}')
 
 while continue_reading:
     # Scan for cards
@@ -39,7 +47,7 @@ while continue_reading:
                 blockAddr = 8
                 key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
-                for blockAddr in MFRC522Reader.MIFARE_USERDATA:
+                for blockAddr in MFRC522Reader.MIFARE_1K_DATABLOCK:
                     (status, backData, backBits) = MFRC522Reader.authenticate(
                         mode,
                         blockAddr,

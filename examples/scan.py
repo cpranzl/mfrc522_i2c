@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
+"""
+Scans countinously for cards and prints the UID
+"""
 
-import MFRC522
+__author__ = "Christoph Pranzl"
+__version__ = "0.0.1"
+__license__ = "GPLv3"
+
+from mfrc522_i2c import MFRC522
 import signal
 
 continue_reading = True
@@ -20,7 +27,8 @@ signal.signal(signal.SIGINT, end_read)
 # Create an object of the class MFRC
 MFRC522Reader = MFRC522.MFRC522()
 
-MFRC522Reader.showReaderDetails()
+version = MFRC522Reader.getReaderVersion()
+print(f'MFRC522 Software Version: {version}')
 
 while continue_reading:
     # Scan for cards
