@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
+"""
+MFRC522 RFID reader/writer I2C driver in Python 3
+"""
+
+__author__ = "Christoph Pranzl"
+__version__ = "0.0.1"
+__license__ = "GPLv3"
 
 from smbus import SMBus
 
 
 class MFRC522:
     # Define register values from datasheet
-    # Page 0: Command & Status register
     COMMANDREG = 0x01  # Start and stops command execution
     COMIENREG = 0x02  # Enable and disable interrupt request control bits
     COMIRQREG = 0x04  # Interrupt request bits
@@ -17,19 +23,15 @@ class MFRC522:
     FIFOLEVELREG = 0x0A  # Number of bytes stored in the FIFO buffer
     CONTROLREG = 0x0C  # Miscellaneous control register
     BITFRAMINGREG = 0x0D  # Adjustments for bit-oriented frames
-    # Page 1: Command register
     MODEREG = 0x11  # Defines general modes for transmitting and receiving
-    TXCONTROLREG = 0x14  # Controls the logical behavior of the antenna
-    # driver pins
+    TXCONTROLREG = 0x14  # Controls the logical behavior of the antenna pins
     TXASKREG = 0x15  # Controls the setting of the transmission modulation
-    # Page 2: Configuration register
     CRCRESULTREGMSB = 0x21  # Shows the MSB of the CRC calculation
     CRCRESULTREGLSB = 0x22  # Shows the LSB of the CRC calculation
     TMODEREG = 0x2A  # Defines settings for the internal timer
     TPRESCALERREG = 0x2B  # Defines settings for internal timer
     TRELOADREGH = 0x2C  # Defines 16-bit timer reload value
     TRELOADREGL = 0x2D  # Defines 16-bit timer reload value
-    # Page 3: Test register
     VERSIONREG = 0x37  # Shows the software version
 
     # MFRC522 Commands
@@ -108,16 +110,15 @@ class MFRC522:
 
     MIFARE_KEY = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
-    MI_OK = 0
-    MI_NOTAGERR = 1
-    MI_ERR = 2
+    MIFARE_OK = 0
+    MIFARE_NOTAGERR = 1
+    MIFARE_ERR = 2
 
     MAX_LEN = 16
 
-    i2cbus = SMBus(1)
-    i2caddress = 0x28
-
-    def __init__(self):
+    def __init__(self, Bus, Address):
+        self.i2cBus = SMBus(Bus)
+        self.i2cAddress = Address
         self.__MFRC522_init()
 
     def getReaderVersion(self):
@@ -133,6 +134,7 @@ class MFRC522:
         return (version)
 
     def scan(self):
+        """ Scans for a card and returns the UID"""
         status = None
         backData = []
         backBits = None
@@ -145,12 +147,13 @@ class MFRC522:
 
         (status, backData, backBits) = self.__transceiveCard(buffer)
 
-        if ((status != self.MI_OK) | (backBits != 0x10)):
-            status = self.MI_ERR
+        if ((status != self.MIFARE_OK) | (backBits != 0x10)):
+            status = self.MIFARE_ERR
 
         return (status, backData, backBits)
 
     def __serialNumberValid(self, serialNumber):
+        """ Checks if the serial number is valid """
         i = 0
         serialCheck = 0
 
@@ -162,7 +165,8 @@ class MFRC522:
         else:
             return True
 
-    def transceive(self):
+    def identify(self):
+        """ Receives the serial number of the card"""
         status = None
         backData = []
         backBits = None
@@ -175,15 +179,16 @@ class MFRC522:
 
         (status, backData, backBits) = self.__transceiveCard(buffer)
 
-        if (status == self.MI_OK):
+        if (status == self.MIFARE_OK):
             if (self.__serialNumberValid(backData)):
-                status = self.MI_OK
+                status = self.MIFARE_OK
             else:
-                status = self.MI_ERR
+                status = self.MIFARE_ERR
 
         return (status, backData, backBits)
 
     def __transceiveCard(self, data):
+        """ Transceives data trough the reader/writer from and to the card """
         status = None
         backData = []
         backBits = None
@@ -274,14 +279,14 @@ class MFRC522:
 
             # Test if any of the errors above happend
             if (~(errorReg & errorTest)):
-                status = self.MI_OK
+                status = self.MIFARE_OK
 
                 # Indicates any error bit in thr ErrorReg register is set
                 ErrIRq = 0x02
 
                 # Test if the timer expired and an error occured
                 if (comIRqReg & TimerIRq & ErrIRq):
-                    status = self.MI_NOTAGERR
+                    status = self.MIFARE_NOTAGERR
 
                 fifoLevelReg = self.__MFRC522_read(self.FIFOLEVELREG)
 
@@ -307,11 +312,12 @@ class MFRC522:
                     i = i + 1
 
             else:
-                status.MI_ERR
+                status.MIFARE_ERR
 
         return (status, backData, backBits)
 
     def __calculateCRC(self, data):
+        """ Uses the reader/writer to calculate CRC """
         # Clear the bit that indicates taht the CalcCRC command is active
         # and all data is processed
         CRCIRq = 0x04
@@ -349,6 +355,7 @@ class MFRC522:
         return (crc)
 
     def select(self, serialNumber):
+        """ Selects a card with a given serial number """
         status = None
         backData = []
         backBits = None
@@ -369,6 +376,7 @@ class MFRC522:
         return (status, backData, backBits)
 
     def authenticate(self, mode, blockAddr, key, serialNumber):
+        """ Authenticates the card """
         status = None
         backData = []
         backBits = None
@@ -388,6 +396,7 @@ class MFRC522:
         return (status, backData, backBits)
 
     def deauthenticate(self):
+        """ Deauthenticates the card """
         # Indicates that the MIFARE Crypto1 unit is switched on and
         # therfore all data communication with the card is encrypted
         # Can ONLY be set to logic 1 by a successfull execution of
@@ -472,21 +481,22 @@ class MFRC522:
 
             # Test if any of the errors above happend
             if (~(errorReg & errorTest)):
-                status = self.MI_OK
+                status = self.MIFARE_OK
 
                 # Indicates any error bit in thr ErrorReg register is set
                 ErrIRq = 0x02
 
                 # Test if the timer expired and an error occured
                 if (comIRqReg & TimerIRq & ErrIRq):
-                    status = self.MI_NOTAGERR
+                    status = self.MIFARE_NOTAGERR
 
             else:
-                status = self.MI_ERR
+                status = self.MIFARE_ERR
 
         return (status, backData, backBits)
 
     def read(self, blockAddr):
+        """ Reads data from the card """
         status = None
         backData = []
         backBits = None
@@ -503,6 +513,7 @@ class MFRC522:
         return (status, backData, backBits)
 
     def write(self, blockAddr, data):
+        """ Writes data to the card """
         status = None
         backData = []
         backBits = None
@@ -516,7 +527,7 @@ class MFRC522:
 
         (status, backData, backBits) = self.__transceiveCard(buffer)
 
-        if (status == self.MI_OK):
+        if (status == self.MIFARE_OK):
 
             buffer.clear()
             buffer.extend(data)
@@ -529,40 +540,70 @@ class MFRC522:
         return (status, backData, backBits)
 
     def __MFRC522_antennaOn(self):
+        """ Activates the reader/writer antenna """
         value = self.__MFRC522_read(self.TXCONTROLREG)
         if (~(value & 0x03)):
             self.__MFRC522_setBitMask(self.TXCONTROLREG, 0x03)
 
     def __MFRC522_antennaOff(self):
+        """ Deactivates the reader/writer antenna """
         self.__MFRC522_clearBitMask(self.TXCONTROLREG, 0x03)
 
     def __MFRC522_reset(self):
+        """ Resets the reader/writer """
         self.__MFRC522_write(self.COMMANDREG, self.MFRC522_SOFTRESET)
 
     def __MFRC522_init(self):
+        """ Initialization sequence"""
         self.__MFRC522_reset()
 
-        self.__MFRC522_write(self.TMODEREG, 0x8D)
-        self.__MFRC522_write(self.TPRESCALERREG, 0x3E)
-        self.__MFRC522_write(self.TRELOADREGL, 30)
-        self.__MFRC522_write(self.TRELOADREGH, 0)
+        # Timer starts automatically at the end of the transmission in all
+        # communication modes and speeds
+        TAuto = 0x80
+        # Defines the higher 4 bits of the TPrescaler value
+        TPrescaler_Hi = 0x0D
+        # Defines the lower 4 bits of the TPrescaler value
+        TPrescaler_Lo = 0x3E  
+        self.__MFRC522_write(self.TMODEREG, (TAuto | TPrescaler_Hi))
+        self.__MFRC522_write(self.TPRESCALERREG, TPrescaler_Lo)
 
-        self.__MFRC522_write(self.TXASKREG, 0x40)
-        self.__MFRC522_write(self.MODEREG, 0x3D)
+        # Defines the higher 8 bits of the timer reload value
+        TReloadVal_Hi = 0x1E
+        # Defines the lower 8 bits of the timer reload value
+        TReloadVal_Lo = 0x00  
+        self.__MFRC522_write(self.TRELOADREGH, TReloadVal_Hi)
+        self.__MFRC522_write(self.TRELOADREGL, TReloadVal_Lo)
 
+        Force100ASK = 0x40  # Forces a 100% ASK modulation
+        self.__MFRC522_write(self.TXASKREG, Force100ASK)
+
+        # Transmitter can only be started if RF field is generated
+        TxWaitRF = 0x32
+        # Defines polarity of pin MFIN, polarity of pin is active HIGH
+        PolMFin = 0x08
+        # Defines the preset value for the CRC coprocessor for the CalcCRC 
+        # command
+        CRCPreset0 = 0x01  
+        self.__MFRC522_write(self.MODEREG, ( TxWaitRF | PolMFin | CRCPreset0))
+        
+        # Activate antenna
         self.__MFRC522_antennaOn()
 
     def __MFRC522_read(self, address):
-        value = self.i2cbus.read_byte_data(self.i2caddress, address)
+        """ Read data from an address on the i2c bus """
+        value = self.i2cBus.read_byte_data(self.i2cAddress, address)
         return value
 
     def __MFRC522_write(self, address, value):
-        self.i2cbus.write_byte_data(self.i2caddress, address, value)
+        """ Write data on an address on the i2c bus """
+        self.i2cBus.write_byte_data(self.i2cAddress, address, value)
 
     def __MFRC522_setBitMask(self, address, mask):
+        """ Set bits according to a mask on a address on the i2c bus """
         value = self.__MFRC522_read(address)
         self.__MFRC522_write(address, value | mask)
 
     def __MFRC522_clearBitMask(self, address, mask):
+        """ Resets bits according to a mask on a address on the i2c bus """
         value = self.__MFRC522_read(address)
         self.__MFRC522_write(address, value & (~mask))
