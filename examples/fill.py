@@ -5,7 +5,7 @@ Fills datablocks with random values
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522

@@ -5,7 +5,7 @@ MFRC522 RFID reader/writer I2C driver in Python 3
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __license__ = "GPLv3"
 
 from smbus import SMBus
