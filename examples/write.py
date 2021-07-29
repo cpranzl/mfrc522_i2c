@@ -5,7 +5,7 @@ Writes a specific datablock with random values
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
@@ -35,8 +35,8 @@ signal.signal(signal.SIGINT, end_read)
 i2cBus = 1
 i2cAddress = 0x28
 
-# Create an object of the class MFRC
-MFRC522Reader = MFRC522.MFRC522(i2cBus, i2cAddress)
+# Create an object of the class MFRC522
+MFRC522Reader = MFRC522(i2cBus, i2cAddress)
 
 version = MFRC522Reader.getReaderVersion()
 print(f'MFRC522 Software Version: {version}')
