@@ -63,19 +63,19 @@ class MFRC522:
     MIFARE_TRANSFER = [0xB0]
 
     # Mifare 1K EEPROM is arranged of 16 sectors. Each sector has 4 blocks and
-    # each block has 16-byte. Block 0 is a special read-only data block that 
+    # each block has 16-byte. Block 0 is a special read-only data block that
     # keeps the manufacturer data and the UID of the tag. The sector trailer
     # block, the last block of the sector, holds the access conditions and two
     # of the authentication keys for that particular sector
     MIFARE_1K_MANUFAKTURERBLOCK = [0]
-    MIFARE_1K_SECTORTRAILER = [  3,   7,  11,  15,  19,  23,  27,  31,  35,  39,
-                                43,  47,  51,  55,  59,  63]
+    MIFARE_1K_SECTORTRAILER = [  3,   7,  11,  15,  19,  23,  27,  31,  35,
+                                39,  43,  47,  51,  55,  59,  63]
     MIFARE_1K_DATABLOCK = [  1,   2,   4,   5,   6,   8,   9,  10,  12,  13,
                             14,  16,  17,  18,  20,  21,  22,  24,  25,  26,
                             28,  29,  30,  32,  33,  34,  36,  37,  38,  40,
                             41,  42,  44,  45,  46,  48,  49,  50,  52,  53,
                             54,  56,  57,  58,  60,  61,  62]
-                    
+
 
     # Mifare 4K EEPROM is arranged of 40 sectors. From sector 0 to 31, memory
     # organization is similar to Mifare 1K, each sector has 4 blocks. From
@@ -563,14 +563,14 @@ class MFRC522:
         # Defines the higher 4 bits of the TPrescaler value
         TPrescaler_Hi = 0x0D
         # Defines the lower 4 bits of the TPrescaler value
-        TPrescaler_Lo = 0x3E  
+        TPrescaler_Lo = 0x3E
         self.__MFRC522_write(self.TMODEREG, (TAuto | TPrescaler_Hi))
         self.__MFRC522_write(self.TPRESCALERREG, TPrescaler_Lo)
 
         # Defines the higher 8 bits of the timer reload value
         TReloadVal_Hi = 0x1E
         # Defines the lower 8 bits of the timer reload value
-        TReloadVal_Lo = 0x00  
+        TReloadVal_Lo = 0x00
         self.__MFRC522_write(self.TRELOADREGH, TReloadVal_Hi)
         self.__MFRC522_write(self.TRELOADREGL, TReloadVal_Lo)
 
@@ -581,11 +581,11 @@ class MFRC522:
         TxWaitRF = 0x32
         # Defines polarity of pin MFIN, polarity of pin is active HIGH
         PolMFin = 0x08
-        # Defines the preset value for the CRC coprocessor for the CalcCRC 
+        # Defines the preset value for the CRC coprocessor for the CalcCRC
         # command
-        CRCPreset0 = 0x01  
+        CRCPreset0 = 0x01
         self.__MFRC522_write(self.MODEREG, ( TxWaitRF | PolMFin | CRCPreset0))
-        
+
         # Activate antenna
         self.__MFRC522_antennaOn()
 
