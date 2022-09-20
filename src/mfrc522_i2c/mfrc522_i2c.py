@@ -258,6 +258,7 @@ class MFRC522:
             if (i == 0):
                 # Watchdog expired
                 break
+            i = i - 1
 
         # Clear the StartSend bit in BitFramingReg register
         self.__MFRC522_clearBitMask(self.BITFRAMINGREG, StartSend)
