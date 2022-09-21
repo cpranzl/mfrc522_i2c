@@ -5,11 +5,10 @@ Dumps datablocks
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
-import signal
 
 continue_reading = True
 
@@ -44,7 +43,7 @@ while continue_reading:
 
                 # Authenticate
                 mode = MFRC522Reader.MIFARE_AUTHKEY1
-                
+
                 blockAddr = 0
                 for blockAddr in MFRC522Reader.MIFARE_1K_DATABLOCK:
                     (status, backData, backBits) = MFRC522Reader.authenticate(
@@ -53,20 +52,20 @@ while continue_reading:
                         MFRC522Reader.MIFARE_KEY,
                         uid)
                     if (status == MFRC522Reader.MIFARE_OK):
-                        
+
                         (status, backData, backBits) = MFRC522Reader.read(
                             blockAddr)
                         if (status == MFRC522Reader.MIFARE_OK):
-                            print(f'Block {blockAddr:02} ', end = '')
-                            for i in range(0,16):
-                                print(f'{backData[i]:02x} ', end = '')
+                            print(f'Block {blockAddr:02} ', end='')
+                            for i in range(0, 16):
+                                print(f'{backData[i]:02x} ', end='')
                             print()
-                        
+
                         else:
                             print('Error while reading')
-                    
+
                         continue_reading = False
-                        
+
                     else:
                         print('Authentication error')
 

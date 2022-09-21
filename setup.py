@@ -16,7 +16,7 @@ def read(fname):
 
 setup(
     name="mfrc522_i2c",
-    version="0.0.3",
+    version="0.0.4",
     author="Christoph Pranzl",
     author_email="christoph.pranzl@pranzl.net",
     description=("MFRC522 RFID reader/writer I2C driver in Python 3"),

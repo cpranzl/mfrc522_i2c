@@ -5,7 +5,7 @@ Reads a specific datablock
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
@@ -55,7 +55,7 @@ while continue_reading:
 
                 # Authenticate
                 mode = MFRC522Reader.MIFARE_AUTHKEY1
-                
+
                 blockAddr = 8
                 (status, backData, backBits) = MFRC522Reader.authenticate(
                     mode,
@@ -69,9 +69,9 @@ while continue_reading:
                     (status, backData, backBits) = MFRC522Reader.read(
                         blockAddr)
                     if (status == MFRC522Reader.MIFARE_OK):
-                        print(f'Block {blockAddr:02} ', end = '')
-                        for i in range(0,16):
-                            print(f'{backData[i]:02x} ', end = '')
+                        print(f'Block {blockAddr:02} ', end='')
+                        for i in range(0, 16):
+                            print(f'{backData[i]:02x} ', end='')
                         print()
 
                         continue_reading = False

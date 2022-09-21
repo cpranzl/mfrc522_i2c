@@ -5,7 +5,7 @@ Fills datablocks with random values
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
@@ -13,12 +13,14 @@ import random
 
 continue_reading = True
 
-# Create random data
+
 def random_data(size=16):
+    """ Create random data """
     data = []
     for i in range(size):
         data.append(random.randint(0, 255))
     return (data)
+
 
 # Reader is located at Bus 1, adress 0x28
 i2cBus = 1
@@ -66,9 +68,9 @@ while continue_reading:
                             blockAddr,
                             data)
                         if (status == MFRC522Reader.MIFARE_OK):
-                            print(f'Data  {blockAddr:02} ', end = '')
-                            for i in range(0,16):
-                                print(f'{data[i]:02x} ', end = '')
+                            print(f'Data  {blockAddr:02} ', end='')
+                            for i in range(0, 16):
+                                print(f'{data[i]:02x} ', end='')
                             print()
                         else:
                             print('Error while writing new data')

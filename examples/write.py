@@ -5,7 +5,7 @@ Writes a specific datablock with random values
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
@@ -15,18 +15,20 @@ import random
 continue_reading = True
 
 
-# Capture SIGINT for cleanup when script is aborted
 def end_read(signal, frame):
+    """ Capture SIGINT for cleanup when script is aborted """
     global continue_reading
     print('Ctrl+C captured, ending read')
     continue_reading = False
 
-# Create random data
+
 def random_data(size=16):
+    """ Create random data """
     data = []
     for i in range(size):
         data.append(random.randint(0, 255))
     return (data)
+
 
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
@@ -73,9 +75,9 @@ while continue_reading:
                     (status, backData, backBits) = MFRC522Reader.read(
                         blockAddr)
                     if (status == MFRC522Reader.MIFARE_OK):
-                        print(f'Block {blockAddr:02} ', end = '')
-                        for i in range(0,16):
-                            print(f'{backData[i]:02x} ', end = '')
+                        print(f'Block {blockAddr:02} ', end='')
+                        for i in range(0, 16):
+                            print(f'{backData[i]:02x} ', end='')
                         print('read')
 
                         # Write new data to card
@@ -84,18 +86,18 @@ while continue_reading:
                             blockAddr,
                             data)
                         if (status == MFRC522Reader.MIFARE_OK):
-                            print(f'Block {blockAddr:02} ', end = '')
-                            for i in range(0,16):
-                                print(f'{data[i]:02x} ', end = '')
+                            print(f'Block {blockAddr:02} ', end='')
+                            for i in range(0, 16):
+                                print(f'{data[i]:02x} ', end='')
                             print('written')
 
                             # Read new data from card
                             (status, backData, backBits) = MFRC522Reader.read(
                                 blockAddr)
                             if (status == MFRC522Reader.MIFARE_OK):
-                                print(f'Block {blockAddr:02} ', end = '')
-                                for i in range(0,16):
-                                    print(f'{backData[i]:02x} ', end = '')
+                                print(f'Block {blockAddr:02} ', end='')
+                                for i in range(0, 16):
+                                    print(f'{backData[i]:02x} ', end='')
                                 print('read')
 
                                 continue_reading = False

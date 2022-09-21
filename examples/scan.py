@@ -5,7 +5,7 @@ Scans countinously for cards and prints the UID
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
