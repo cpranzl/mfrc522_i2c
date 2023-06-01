@@ -5,7 +5,7 @@ Scans countinously for cards and prints the UID
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
@@ -43,5 +43,7 @@ while continue_reading:
         # Get UID of the card
         (status, uid, backBits) = MFRC522Reader.identify()
         if status == MFRC522Reader.MIFARE_OK:
-            print(f'Card identified, '
-                  f'UID: {uid[0]:02x}:{uid[1]:02x}:{uid[2]:02x}:{uid[3]:02x}')
+            print('Card identified, UID: ', end='')
+            for i in range(0, len(uid) - 1):
+                print(f'{uid[i]:02x}:', end='')
+            print(f'{uid[len(uid) - 1]:02x}')

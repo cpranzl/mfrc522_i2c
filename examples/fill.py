@@ -5,13 +5,22 @@ Fills datablocks with random values
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
+import signal
 import random
 
+
 continue_reading = True
+
+
+def end_read(signal, frame):
+    """ Capture SIGINT for cleanup when script is aborted """
+    global continue_reading
+    print('Ctrl+C captured, ending read')
+    continue_reading = False
 
 
 def random_data(size=16):
@@ -21,6 +30,9 @@ def random_data(size=16):
         data.append(random.randint(0, 255))
     return (data)
 
+
+# Hook the SIGINT
+signal.signal(signal.SIGINT, end_read)
 
 # Reader is located at Bus 1, adress 0x28
 i2cBus = 1
@@ -41,23 +53,24 @@ while continue_reading:
         # Get UID of the card
         (status, uid, backBits) = MFRC522Reader.identify()
         if status == MFRC522Reader.MIFARE_OK:
-            print(f'Card identified, UID: {uid[0]}{uid[1]}{uid[2]}{uid[3]}')
+            print('Card identified, UID: ', end='')
+            for i in range(0, len(uid) - 1):
+                print(f'{uid[i]:02x}:', end='')
+            print(f'{uid[len(uid) - 1]:02x}')
 
             # Select the scanned card
             (status, backData, backBits) = MFRC522Reader.select(uid)
             if status == MFRC522Reader.MIFARE_OK:
                 print('Card selected')
 
-                # Authenticate
-                mode = MFRC522Reader.MIFARE_AUTHKEY1
-                blockAddr = 8
-                key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+                # TODO: Determine 1K or 4K
 
+                # Authenticate
                 for blockAddr in MFRC522Reader.MIFARE_1K_DATABLOCK:
                     (status, backData, backBits) = MFRC522Reader.authenticate(
-                        mode,
+                        MFRC522Reader.MIFARE_AUTHKEY1,
                         blockAddr,
-                        key,
+                        MFRC522Reader.MIFARE_KEY,
                         uid)
 
                     if (status == MFRC522Reader.MIFARE_OK):
@@ -68,10 +81,10 @@ while continue_reading:
                             blockAddr,
                             data)
                         if (status == MFRC522Reader.MIFARE_OK):
-                            print(f'Data  {blockAddr:02} ', end='')
-                            for i in range(0, 16):
+                            print(f'Data  {blockAddr:02} : ', end='')
+                            for i in range(0, len(data)):
                                 print(f'{data[i]:02x} ', end='')
-                            print()
+                            print('written')
                         else:
                             print('Error while writing new data')
 
@@ -80,5 +93,5 @@ while continue_reading:
                     else:
                         print('Authentication error')
 
-            # Deauthenticate
-            MFRC522Reader.deauthenticate()
+                # Deauthenticate
+                MFRC522Reader.deauthenticate()

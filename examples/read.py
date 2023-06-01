@@ -5,17 +5,18 @@ Reads a specific datablock
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 __license__ = "GPLv3"
 
 from mfrc522_i2c import MFRC522
 import signal
 
+
 continue_reading = True
 
 
-# Capture SIGINT for cleanup when script is aborted
 def end_read(signal, frame):
+    """ Capture SIGINT for cleanup when script is aborted """
     global continue_reading
     print('Ctrl+C captured, ending read')
     continue_reading = False
@@ -43,8 +44,10 @@ while continue_reading:
         # Get UID of the card
         (status, uid, backBits) = MFRC522Reader.identify()
         if status == MFRC522Reader.MIFARE_OK:
-            print(f'Card identified, '
-                  f'UID: {uid[0]:02x}:{uid[1]:02x}:{uid[2]:02x}:{uid[3]:02x}')
+            print('Card identified, UID: ', end='')
+            for i in range(0, len(uid) - 1):
+                print(f'{uid[i]:02x}:', end='')
+            print(f'{uid[len(uid) - 1]:02x}')
 
             # Select the scanned card
             (status, backData, backBits) = MFRC522Reader.select(uid)
@@ -54,11 +57,9 @@ while continue_reading:
                 # TODO: Determine 1K or 4K
 
                 # Authenticate
-                mode = MFRC522Reader.MIFARE_AUTHKEY1
-
                 blockAddr = 8
                 (status, backData, backBits) = MFRC522Reader.authenticate(
-                    mode,
+                    MFRC522Reader.MIFARE_AUTHKEY1,
                     blockAddr,
                     MFRC522Reader.MIFARE_KEY,
                     uid)
@@ -69,10 +70,10 @@ while continue_reading:
                     (status, backData, backBits) = MFRC522Reader.read(
                         blockAddr)
                     if (status == MFRC522Reader.MIFARE_OK):
-                        print(f'Block {blockAddr:02} ', end='')
-                        for i in range(0, 16):
+                        print(f'Block {blockAddr:02} : ', end='')
+                        for i in range(0, len(backData)):
                             print(f'{backData[i]:02x} ', end='')
-                        print()
+                        print('read')
 
                         continue_reading = False
                     else:

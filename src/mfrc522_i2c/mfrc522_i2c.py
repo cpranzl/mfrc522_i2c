@@ -5,7 +5,7 @@ MFRC522 RFID reader/writer I2C driver in Python 3
 """
 
 __author__ = "Christoph Pranzl"
-__version__ = "0.0.4444"
+__version__ = "0.0.5"
 __license__ = "GPLv3"
 
 from smbus import SMBus
@@ -68,31 +68,31 @@ class MFRC522:
     # block, the last block of the sector, holds the access conditions and two
     # of the authentication keys for that particular sector
     MIFARE_1K_MANUFAKTURERBLOCK = [0]
-    MIFARE_1K_SECTORTRAILER = [  3,   7,  11,  15,  19,  23,  27,  31,  35,
-                                39,  43,  47,  51,  55,  59,  63]
-    MIFARE_1K_DATABLOCK = [  1,   2,   4,   5,   6,   8,   9,  10,  12,  13,
-                            14,  16,  17,  18,  20,  21,  22,  24,  25,  26,
-                            28,  29,  30,  32,  33,  34,  36,  37,  38,  40,
-                            41,  42,  44,  45,  46,  48,  49,  50,  52,  53,
-                            54,  56,  57,  58,  60,  61,  62]
-
+    MIFARE_1K_SECTORTRAILER = [3, 7, 11, 15, 19, 23, 27, 31, 35,
+                               39, 43, 47, 51, 55, 59, 63]
+    MIFARE_1K_DATABLOCK = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13,
+                           14, 16, 17, 18, 20, 21, 22,  24,  25,  26,
+                           28, 29, 30, 32, 33, 34, 36,  37,  38,  40,
+                           41, 42, 44, 45, 46, 48, 49,  50,  52,  53,
+                           54, 56, 57, 58, 60, 61, 62]
 
     # Mifare 4K EEPROM is arranged of 40 sectors. From sector 0 to 31, memory
     # organization is similar to Mifare 1K, each sector has 4 blocks. From
     # sector 32 to 39, each sector has 16 blocks
     MIFARE_4K_MANUFAKTURERBLOCK = [0]
-    MIFARE_4K_SECTORTRAILER = [  3,   7,  11,  15,  19,  23,  27,  31,  35,  39,
-                                43,  47,  51,  55,  59,  63,  67,  71,  75,  79,
-                                83,  87,  91,  95,  99, 103, 107, 111, 115, 119,
-                               123, 127, 143, 159, 175, 191, 207, 223, 239, 255]
-    MIFARE_4K_DATABLOCK = [  1,   2,   4,   5,   6,   8,   9,  10,  12,  13,
-                            14,  16,  17,  18,  20,  21,  22,  24,  25,  26,
-                            28,  29,  30,  32,  33,  34,  36,  37,  38,  40,
-                            41,  42,  44,  45,  46,  48,  49,  50,  52,  53,
-                            54,  56,  57,  58,  60,  61,  62,  64,  65,  66,
-                            68,  69,  70,  72,  73,  74,  76,  77,  78,  80,
-                            81,  82,  84,  85,  86,  88,  89,  90,  92,  93,
-                            94,  96,  97,  98, 100, 101, 102, 104, 105, 106,
+    MIFARE_4K_SECTORTRAILER = [3, 7, 11, 15, 19, 23, 27, 31, 35, 39,
+                               43, 47, 51, 55, 59, 63, 67, 71, 75, 79,
+                               83, 87, 91, 95, 99, 103, 107, 111, 115, 119,
+                               123, 127, 143, 159, 175, 191, 207, 223, 239,
+                               255]
+    MIFARE_4K_DATABLOCK = [1,  2, 4, 5, 6, 8, 9, 10, 12, 13,
+                           14, 16, 17, 18, 20, 21, 22, 24, 25, 26,
+                           28, 29, 30, 32, 33, 34, 36, 37, 38, 40,
+                           41, 42, 44, 45, 46, 48, 49, 50, 52, 53,
+                           54, 56, 57, 58, 60, 61, 62, 64, 65, 66,
+                           68, 69, 70, 72, 73, 74, 76, 77, 78, 80,
+                           81, 82, 84, 85, 86, 88, 89, 90, 92, 93,
+                           94, 96, 97, 98, 100, 101, 102, 104, 105, 106,
                            108, 109, 110, 112, 113, 114, 116, 117, 118, 120,
                            121, 122, 124, 125, 126, 128, 129, 130, 131, 132,
                            133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
@@ -201,12 +201,12 @@ class MFRC522:
         ErrIEn = 0x02  # Allow the error interrupt request
         TimerIEn = 0x01  # Allow the timer interrupt request
         self.__MFRC522_write(self.COMIENREG, (IRqInv |
-                                            TxIEn |
-                                            RxIEn |
-                                            IdleIEn |
-                                            LoAlertIEn |
-                                            ErrIEn |
-                                            TimerIEn))
+                                              TxIEn |
+                                              RxIEn |
+                                              IdleIEn |
+                                              LoAlertIEn |
+                                              ErrIEn |
+                                              TimerIEn))
 
         # Indicates that the bits in the ComIrqReg register are set
         Set1 = 0x80
@@ -221,10 +221,8 @@ class MFRC522:
         self.__MFRC522_write(self.COMMANDREG, self.MFRC522_IDLE)
 
         # Write data in FIFO register
-        i = 0
-        while (i < len(data)):
+        for i in range(0, len(data)):
             self.__MFRC522_write(self.FIFODATAREG, data[i])
-            i = i + 1
 
         # Countinously repeat the transmission of data from the FIFO buffer and
         # the reception of data from the RF field.
@@ -258,7 +256,7 @@ class MFRC522:
             if (i == 0):
                 # Watchdog expired
                 break
-            i = i - 1
+            i -= 1
 
         # Clear the StartSend bit in BitFramingReg register
         self.__MFRC522_clearBitMask(self.BITFRAMINGREG, StartSend)
@@ -307,10 +305,9 @@ class MFRC522:
                 else:
                     backBits = fifoLevelReg * 8
 
-                i = 0
-                while (i < fifoLevelReg):
+                # Read data from FIFO register
+                for i in range(0, fifoLevelReg):
                     backData.append(self.__MFRC522_read(self.FIFODATAREG))
-                    i = i + 1
 
             else:
                 status.MIFARE_ERR
@@ -460,6 +457,7 @@ class MFRC522:
             if (i == 0):
                 # Watchdog expired
                 break
+            i -= 1
 
         # Clear the StartSend bit in BitFramingReg register
         StartSend = 0x80
@@ -578,14 +576,22 @@ class MFRC522:
         Force100ASK = 0x40  # Forces a 100% ASK modulation
         self.__MFRC522_write(self.TXASKREG, Force100ASK)
 
+        # Moderegister reset value
+        ResetVal = 0x3F
+        # Moderegister feature mask
+        FeatureMask = 0x14
         # Transmitter can only be started if RF field is generated
-        TxWaitRF = 0x32
+        TxWaitRF = 0x20
         # Defines polarity of pin MFIN, polarity of pin is active HIGH
         PolMFin = 0x08
         # Defines the preset value for the CRC coprocessor for the CalcCRC
         # command
-        CRCPreset0 = 0x01
-        self.__MFRC522_write(self.MODEREG, ( TxWaitRF | PolMFin | CRCPreset0))
+        CRCPreset = 0x01
+        self.__MFRC522_write(self.MODEREG, ((ResetVal &
+                                             FeatureMask) |
+                                            TxWaitRF |
+                                            PolMFin |
+                                            CRCPreset))
 
         # Activate antenna
         self.__MFRC522_antennaOn()
